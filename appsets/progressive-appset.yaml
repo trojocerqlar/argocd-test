@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  generators:
+  - list:
+      elements:
+      - name: infrastructure
+        wave: "0"
+      - name: services
+        wave: "1"
+      - name: outbox
+        wave: "2"
+
+  template:
+    metadata:
+      name: 'platform-{{name}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: '{{wave}}'
+
+    spec:
+      project: default
+
+      source:
+        repoURL: https://github.com/trojocerqlar/argocd-test.git
+        targetRevision: main
+        path: definitions
+        directory:
+          include: '{{name}}.yaml'
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: argocd  # ⚠️ Deploy to argocd namespace (where ArgoCD lives)
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
