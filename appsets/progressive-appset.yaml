@@ -9,32 +9,11 @@ spec:
     - missingkey=error
 
   generators:
-    - list:
-        elements:
-          - name: infrastructure
-            stage: infrastructure
-            type: directory
-            path: infrastructure
-          - name: service-a
-            stage: services
-            type: helm
-            chartVersion: 22.6.1
-            valuesFile: services/service-a/values.yaml
-          - name: service-b
-            stage: services
-            type: helm
-            chartVersion: 22.6.0
-            valuesFile: services/service-b/values.yaml
-          - name: outbox-a
-            stage: outbox
-            type: helm
-            chartVersion: 22.6.1
-            valuesFile: services/outbox-a/values.yaml
-          - name: outbox-b
-            stage: outbox
-            type: helm
-            chartVersion: 22.6.0
-            valuesFile: services/outbox-b/values.yaml
+    - git:
+        repoURL: https://github.com/trojocerqlar/argocd-test.git
+        revision: main
+        files:
+          - path: catalog/apps/*.yaml
 
   strategy:
     type: RollingSync

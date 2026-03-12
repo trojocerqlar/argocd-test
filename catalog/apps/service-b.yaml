@@ -1,0 +1,5 @@
+name: service-b
+stage: services
+type: helm
+chartVersion: 22.6.0
+valuesFile: services/service-b/values.yaml

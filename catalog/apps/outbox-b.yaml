@@ -1,0 +1,5 @@
+name: outbox-b
+stage: outbox
+type: helm
+chartVersion: 22.6.0
+valuesFile: services/outbox-b/values.yaml

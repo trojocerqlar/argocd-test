@@ -1,0 +1,4 @@
+name: infrastructure
+stage: infrastructure
+type: directory
+path: infrastructure
