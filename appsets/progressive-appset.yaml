@@ -4,37 +4,92 @@ metadata:
   name: platform
   namespace: argocd
 spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+
   generators:
-  - list:
-      elements:
-      - name: infrastructure
-        wave: "0"
-      - name: services
-        wave: "1"
-      - name: outbox
-        wave: "2"
+    - list:
+        elements:
+          - name: infrastructure
+            stage: infrastructure
+            type: directory
+            path: infrastructure
+          - name: service-a
+            stage: services
+            type: helm
+            chartVersion: 22.6.1
+            valuesFile: services/service-a/values.yaml
+          - name: service-b
+            stage: services
+            type: helm
+            chartVersion: 22.6.0
+            valuesFile: services/service-b/values.yaml
+          - name: outbox-a
+            stage: outbox
+            type: helm
+            chartVersion: 22.6.1
+            valuesFile: services/outbox-a/values.yaml
+          - name: outbox-b
+            stage: outbox
+            type: helm
+            chartVersion: 22.6.0
+            valuesFile: services/outbox-b/values.yaml
+
+  strategy:
+    type: RollingSync
+    rollingSync:
+      steps:
+        - matchExpressions:
+            - key: stage
+              operator: In
+              values:
+                - infrastructure
+        - matchExpressions:
+            - key: stage
+              operator: In
+              values:
+                - services
+        - matchExpressions:
+            - key: stage
+              operator: In
+              values:
+                - outbox
 
   template:
     metadata:
-      name: 'platform-{{name}}'
-      annotations:
-        argocd.argoproj.io/sync-wave: '{{wave}}'
-
+      name: '{{.name}}'
+      labels:
+        stage: '{{.stage}}'
     spec:
       project: default
-
-      source:
-        repoURL: https://github.com/trojocerqlar/argocd-test.git
-        targetRevision: main
-        path: definitions
-        directory:
-          include: '{{name}}.yaml'
-
       destination:
         server: https://kubernetes.default.svc
-        namespace: argocd  # ⚠️ Deploy to argocd namespace (where ArgoCD lives)
-
+        namespace: app
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+
+  templatePatch: |
+    spec:
+      {{- if eq .type "directory" }}
+      source:
+        repoURL: https://github.com/trojocerqlar/argocd-test.git
+        targetRevision: main
+        path: {{ .path }}
+      {{- else if eq .type "helm" }}
+      sources:
+        - repoURL: https://charts.bitnami.com/bitnami
+          chart: nginx
+          targetRevision: '{{ .chartVersion }}'
+          helm:
+            releaseName: '{{ .name }}'
+            valueFiles:
+              - '$values/{{ .valuesFile }}'
+        - repoURL: https://github.com/trojocerqlar/argocd-test.git
+          targetRevision: main
+          ref: values
+      {{- end }}
