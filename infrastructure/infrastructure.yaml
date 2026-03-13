@@ -61,32 +61,71 @@ spec:
         - name: data
           emptyDir: {}
 ---
-apiVersion: batch/v1
-kind: Job
+apiVersion: v1
+kind: Service
 metadata:
-  name: postgres-db-seed
+  name: mongo-db
   labels:
-    app.kubernetes.io/name: postgres-db-seed
+    app.kubernetes.io/name: mongo-db
     app.kubernetes.io/part-of: progressive-sync-poc
 spec:
-  backoffLimit: 3
+  selector:
+    app.kubernetes.io/name: mongo-db
+  ports:
+    - name: mongodb
+      port: 27017
+      targetPort: 27017
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-db
+  labels:
+    app.kubernetes.io/name: mongo-db
+    app.kubernetes.io/part-of: progressive-sync-poc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mongo-db
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: postgres-db-seed
+        app.kubernetes.io/name: mongo-db
         app.kubernetes.io/part-of: progressive-sync-poc
     spec:
-      restartPolicy: OnFailure
       containers:
-        - name: seed
-          image: postgres:16-alpine
+        - name: mongo
+          image: mongo:7.0
+          args:
+            - --bind_ip_all
           env:
-            - name: PGPASSWORD
+            - name: MONGO_INITDB_ROOT_USERNAME
               value: demo
-          command:
-            - sh
-            - -c
-            - >
-              until pg_isready -h postgres-db -U demo -d orders; do sleep 2; done;
-              psql -h postgres-db -U demo -d orders -c "create table if not exists customers (id serial primary key, name text not null);";
-              psql -h postgres-db -U demo -d orders -c "insert into customers (name) select 'seed-customer' where not exists (select 1 from customers where name = 'seed-customer');";
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: demo
+          ports:
+            - containerPort: 27017
+              name: mongodb
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - mongosh --quiet --host localhost --username demo --password demo --authenticationDatabase admin --eval "db.adminCommand('ping').ok"
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - mongosh --quiet --host localhost --username demo --password demo --authenticationDatabase admin --eval "db.adminCommand('ping').ok"
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /data/db
+      volumes:
+        - name: data
+          emptyDir: {}

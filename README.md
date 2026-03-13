@@ -4,7 +4,7 @@ This repository is a small proof of concept for Argo CD `RollingSync` progressiv
 
 It demonstrates three rollout stages:
 
-- databases first
+- infrastructure first
 - backends second
 - frontends last
 
@@ -12,18 +12,18 @@ The generated Applications do not move to the next stage until the current stage
 
 This version of the POC uses a mixed deployment model:
 
-- database Applications are plain manifests in this repo
+- infrastructure Applications are plain manifests in this repo
 - backend and frontend Applications are Helm charts plus values files
 
 ## What This Shows
 
 - stage-based ordering across many Applications instead of one large sync wave inside a single app
-- health-gated progression so frontends do not start until databases and backends are healthy
+- health-gated progression so frontends do not start until infrastructure and backends are healthy
 - limited concurrency for noisy tiers that may contain many apps
 
 The example uses:
 
-- 1 PostgreSQL Application and 1 MongoDB Application synced together
+- 1 infrastructure Application that deploys PostgreSQL, MongoDB, seed jobs, and shared credentials
 - 4 backend placeholder Applications synced in batches of 2
 - 3 frontend placeholder Applications synced one at a time
 
@@ -35,13 +35,15 @@ Charts used:
 
 ```text
 bootstrap/
-  root-application.yaml
+  root-app.yaml
   core/
     project.yaml
     progressive-sync-appset.yaml
 apps/
-  databases-postgres/
-  databases-mongo/
+  infrastructure/
+    infrastructure.yaml
+    seed-jobs.yaml
+    shared-secrets.yaml
 services/
   backend/
     orders-api/
@@ -95,8 +97,8 @@ kubectl apply -n argocd -f bootstrap/root-app.yaml
 
 ## Expected Rollout Behavior
 
-1. `postgres-db` and `mongo-db` sync first.
-2. When both database Applications are `Healthy`, the backend stage starts.
+1. The `infrastructure` Application syncs first.
+2. When the infrastructure Application is `Healthy`, the backend stage starts.
 3. Backends roll out in batches of 2.
 4. When all backend Applications are `Healthy`, frontends start.
 5. Frontends roll out one at a time.
@@ -110,15 +112,17 @@ Backend and frontend Applications use Argo CD multiple sources:
 - source 1: an external Helm chart
 - source 2: this Git repository as a values-only source via `$services/...`
 
-Database Applications use a normal Git directory source so each app can contain:
+Infrastructure Applications use a normal Git directory source so each app can contain:
 
-- a Service
-- a Deployment
-- a seed Job
+- a shared Secret
+- database Services and Deployments
+- separate seed Jobs
+
+Backend values files inject credentials from the `backend-service-credentials` Secret.
 
 ## Why This POC Is Intentionally Simple
 
-- databases are plain manifests so the startup and seed steps stay obvious
+- infrastructure is plain manifests so the runtime, secret, and seeding steps stay obvious
 - backends and frontends reuse one generic chart to keep the example easy to scale out
 - only the services that already follow your Helm deployment model use values files
 

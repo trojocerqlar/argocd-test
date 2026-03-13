@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgres-db-seed
+  labels:
+    app.kubernetes.io/name: postgres-db-seed
+    app.kubernetes.io/part-of: progressive-sync-poc
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgres-db-seed
+        app.kubernetes.io/part-of: progressive-sync-poc
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: seed
+          image: postgres:16-alpine
+          env:
+            - name: PGPASSWORD
+              value: demo
+          command:
+            - sh
+            - -c
+            - >
+              until pg_isready -h postgres-db -U demo -d orders; do sleep 2; done;
+              psql -h postgres-db -U demo -d orders -c "create table if not exists customers (id serial primary key, name text not null);";
+              psql -h postgres-db -U demo -d orders -c "insert into customers (name) select 'seed-customer' where not exists (select 1 from customers where name = 'seed-customer');";
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongo-db-seed
+  labels:
+    app.kubernetes.io/name: mongo-db-seed
+    app.kubernetes.io/part-of: progressive-sync-poc
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mongo-db-seed
+        app.kubernetes.io/part-of: progressive-sync-poc
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: seed
+          image: mongo:7.0
+          command:
+            - sh
+            - -c
+            - >
+              until mongosh --quiet "mongodb://demo:demo@mongo-db:27017/admin" --eval "db.adminCommand('ping').ok"; do sleep 2; done;
+              mongosh --quiet "mongodb://demo:demo@mongo-db:27017/catalog?authSource=admin" --eval "db.products.updateOne({sku: 'sku-1'}, {\$set: {name: 'seed-product', price: 42}}, {upsert: true})";

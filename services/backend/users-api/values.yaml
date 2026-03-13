@@ -16,3 +16,29 @@ resources:
     memory: 64Mi
   limits:
     memory: 128Mi
+extraEnvVars:
+  - name: POSTGRES_HOST
+    valueFrom:
+      secretKeyRef:
+        name: backend-service-credentials
+        key: POSTGRES_HOST
+  - name: POSTGRES_DB
+    valueFrom:
+      secretKeyRef:
+        name: backend-service-credentials
+        key: POSTGRES_DB
+  - name: POSTGRES_USER
+    valueFrom:
+      secretKeyRef:
+        name: backend-service-credentials
+        key: POSTGRES_USER
+  - name: POSTGRES_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: backend-service-credentials
+        key: POSTGRES_PASSWORD
+  - name: MONGO_URI
+    valueFrom:
+      secretKeyRef:
+        name: backend-service-credentials
+        key: MONGO_URI

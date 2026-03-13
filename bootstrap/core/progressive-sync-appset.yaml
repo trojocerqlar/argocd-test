@@ -16,8 +16,8 @@ spec:
             - key: stage
               operator: In
               values:
-                - database
-          maxUpdate: 2
+                - infrastructure
+          maxUpdate: 1
         - matchExpressions:
             - key: stage
               operator: In
@@ -33,14 +33,10 @@ spec:
   generators:
     - list:
         elements:
-          - name: postgres-db
-            stage: database
+          - name: infrastructure
+            stage: infrastructure
             sourceType: directory
-            path: apps/databases-postgres
-          - name: mongo-db
-            stage: database
-            sourceType: directory
-            path: apps/databases-mongo
+            path: infrastructure
           - name: orders-api
             stage: backend
             sourceType: helm
