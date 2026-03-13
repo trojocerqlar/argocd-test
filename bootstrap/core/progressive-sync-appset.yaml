@@ -16,6 +16,12 @@ spec:
             - key: stage
               operator: In
               values:
+                - gcp
+          maxUpdate: 1
+        - matchExpressions:
+            - key: stage
+              operator: In
+              values:
                 - infrastructure
           maxUpdate: 1
         - matchExpressions:
@@ -33,6 +39,10 @@ spec:
   generators:
     - list:
         elements:
+          - name: gcp
+            stage: gcp
+            sourceType: directory
+            path: gcp
           - name: infrastructure
             stage: infrastructure
             sourceType: directory

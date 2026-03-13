@@ -4,8 +4,9 @@ This repository is a small proof of concept for Argo CD `RollingSync` progressiv
 
 It demonstrates three rollout stages:
 
-- infrastructure first
-- backends second
+- gcp first
+- infrastructure second
+- backends third
 - frontends last
 
 The generated Applications do not move to the next stage until the current stage reports `Healthy`.
@@ -18,12 +19,13 @@ This version of the POC uses a mixed deployment model:
 ## What This Shows
 
 - stage-based ordering across many Applications instead of one large sync wave inside a single app
-- health-gated progression so frontends do not start until infrastructure and backends are healthy
+- health-gated progression so frontends do not start until gcp, infrastructure, and backends are healthy
 - limited concurrency for noisy tiers that may contain many apps
 
 The example uses:
 
-- 1 infrastructure Application that deploys PostgreSQL, MongoDB, seed jobs, and shared credentials
+- 1 gcp placeholder Application that simulates cloud resource provisioning with a 10-second startup delay
+- 1 infrastructure Application that deploys PostgreSQL, MongoDB, Envoy, seed jobs, and shared credentials
 - 4 backend placeholder Applications synced in batches of 2
 - 3 frontend placeholder Applications synced one at a time
 
@@ -39,9 +41,12 @@ bootstrap/
   core/
     project.yaml
     progressive-sync-appset.yaml
+gcp/
+  resources.yaml
 apps/
   infrastructure/
     infrastructure.yaml
+    envoy.yaml
     seed-jobs.yaml
     shared-secrets.yaml
 services/
@@ -97,11 +102,12 @@ kubectl apply -n argocd -f bootstrap/root-app.yaml
 
 ## Expected Rollout Behavior
 
-1. The `infrastructure` Application syncs first.
-2. When the infrastructure Application is `Healthy`, the backend stage starts.
-3. Backends roll out in batches of 2.
-4. When all backend Applications are `Healthy`, frontends start.
-5. Frontends roll out one at a time.
+1. The `gcp` Application syncs first and stays pending for about 10 seconds.
+2. When the `gcp` Application is `Healthy`, the `infrastructure` Application starts.
+3. When the infrastructure Application is `Healthy`, the backend stage starts.
+4. Backends roll out in batches of 2.
+5. When all backend Applications are `Healthy`, frontends start.
+6. Frontends roll out one at a time.
 
 If one Application stays unhealthy, the rollout pauses on that stage.
 
@@ -115,7 +121,8 @@ Backend and frontend Applications use Argo CD multiple sources:
 Infrastructure Applications use a normal Git directory source so each app can contain:
 
 - a shared Secret
-- database Services and Deployments
+- infrastructure Services and Deployments
+- an Envoy gateway configuration
 - separate seed Jobs
 
 Backend values files inject credentials from the `backend-service-credentials` Secret.

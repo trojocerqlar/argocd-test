@@ -1,0 +1,224 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: envoy-config
+  labels:
+    app.kubernetes.io/name: envoy
+    app.kubernetes.io/part-of: progressive-sync-poc
+data:
+  envoy.yaml: |
+    static_resources:
+      listeners:
+        - name: http
+          address:
+            socket_address:
+              address: 0.0.0.0
+              port_value: 8080
+          filter_chains:
+            - filters:
+                - name: envoy.filters.network.http_connection_manager
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                    stat_prefix: ingress_http
+                    route_config:
+                      name: local_route
+                      virtual_hosts:
+                        - name: progressive-sync-poc
+                          domains: ["*"]
+                          routes:
+                            - match:
+                                prefix: /api/orders
+                              route:
+                                cluster: orders-api
+                                prefix_rewrite: /
+                            - match:
+                                prefix: /api/users
+                              route:
+                                cluster: users-api
+                                prefix_rewrite: /
+                            - match:
+                                prefix: /api/payments
+                              route:
+                                cluster: payments-api
+                                prefix_rewrite: /
+                            - match:
+                                prefix: /api/catalog
+                              route:
+                                cluster: catalog-api
+                                prefix_rewrite: /
+                            - match:
+                                prefix: /admin
+                              route:
+                                cluster: admin-ui
+                                prefix_rewrite: /
+                            - match:
+                                prefix: /support
+                              route:
+                                cluster: support-ui
+                                prefix_rewrite: /
+                            - match:
+                                prefix: /
+                              route:
+                                cluster: web-ui
+                    http_filters:
+                      - name: envoy.filters.http.router
+                        typed_config:
+                          "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+      clusters:
+        - name: orders-api
+          type: STRICT_DNS
+          connect_timeout: 2s
+          load_assignment:
+            cluster_name: orders-api
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: orders-api.progressive-sync-poc.svc.cluster.local
+                          port_value: 80
+        - name: users-api
+          type: STRICT_DNS
+          connect_timeout: 2s
+          load_assignment:
+            cluster_name: users-api
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: users-api.progressive-sync-poc.svc.cluster.local
+                          port_value: 80
+        - name: payments-api
+          type: STRICT_DNS
+          connect_timeout: 2s
+          load_assignment:
+            cluster_name: payments-api
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: payments-api.progressive-sync-poc.svc.cluster.local
+                          port_value: 80
+        - name: catalog-api
+          type: STRICT_DNS
+          connect_timeout: 2s
+          load_assignment:
+            cluster_name: catalog-api
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: catalog-api.progressive-sync-poc.svc.cluster.local
+                          port_value: 80
+        - name: web-ui
+          type: STRICT_DNS
+          connect_timeout: 2s
+          load_assignment:
+            cluster_name: web-ui
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: web-ui.progressive-sync-poc.svc.cluster.local
+                          port_value: 80
+        - name: admin-ui
+          type: STRICT_DNS
+          connect_timeout: 2s
+          load_assignment:
+            cluster_name: admin-ui
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: admin-ui.progressive-sync-poc.svc.cluster.local
+                          port_value: 80
+        - name: support-ui
+          type: STRICT_DNS
+          connect_timeout: 2s
+          load_assignment:
+            cluster_name: support-ui
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: support-ui.progressive-sync-poc.svc.cluster.local
+                          port_value: 80
+    admin:
+      access_log_path: /tmp/admin_access.log
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 9901
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: envoy
+  labels:
+    app.kubernetes.io/name: envoy
+    app.kubernetes.io/part-of: progressive-sync-poc
+spec:
+  selector:
+    app.kubernetes.io/name: envoy
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+    - name: admin
+      port: 9901
+      targetPort: 9901
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envoy
+  labels:
+    app.kubernetes.io/name: envoy
+    app.kubernetes.io/part-of: progressive-sync-poc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: envoy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: envoy
+        app.kubernetes.io/part-of: progressive-sync-poc
+    spec:
+      containers:
+        - name: envoy
+          image: envoyproxy/envoy:v1.33.0
+          args:
+            - -c
+            - /etc/envoy/envoy.yaml
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 9901
+              name: admin
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: admin
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: admin
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            - name: config
+              mountPath: /etc/envoy
+      volumes:
+        - name: config
+          configMap:
+            name: envoy-config
