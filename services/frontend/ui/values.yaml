@@ -1,4 +1,4 @@
-fullnameOverride: support-ui
+fullnameOverride: ui
 replicaCount: 1
 service:
   type: ClusterIP
@@ -7,7 +7,7 @@ serverBlock: |-
     listen 0.0.0.0:8080;
     location / {
       default_type text/plain;
-      return 200 "support-ui ready\n";
+      return 200 "ui ready\n";
     }
   }
 resources:

@@ -1,4 +1,4 @@
-fullnameOverride: users-api
+fullnameOverride: membership-service
 replicaCount: 1
 service:
   type: ClusterIP
@@ -7,7 +7,7 @@ serverBlock: |-
     listen 0.0.0.0:8080;
     location / {
       default_type text/plain;
-      return 200 "users-api ready\n";
+      return 200 "membership-service ready\n";
     }
   }
 resources:

@@ -36,6 +36,12 @@ spec:
               values:
                 - frontend
           maxUpdate: 1
+        - matchExpressions:
+            - key: stage
+              operator: In
+              values:
+                - outbox
+          maxUpdate: 1
   generators:
     - list:
         elements:
@@ -47,39 +53,45 @@ spec:
             stage: infrastructure
             sourceType: directory
             path: infrastructure
-          - name: orders-api
+          - name: trades-service
             stage: backend
             sourceType: helm
             chartName: nginx
             chartVersion: 22.4.3
-          - name: users-api
+          - name: inventory-service
             stage: backend
             sourceType: helm
             chartName: nginx
             chartVersion: 22.4.3
-          - name: payments-api
+          - name: membership-service
             stage: backend
             sourceType: helm
             chartName: nginx
             chartVersion: 22.4.3
-          - name: catalog-api
+          - name: ecolabel-service
             stage: backend
             sourceType: helm
             chartName: nginx
             chartVersion: 22.4.3
-          - name: web-ui
+          - name: ui
             stage: frontend
             sourceType: helm
             chartName: nginx
             chartVersion: 22.4.3
-          - name: admin-ui
+          - name: inventory-ui
             stage: frontend
             sourceType: helm
             chartName: nginx
             chartVersion: 22.4.3
-          - name: support-ui
+          - name: ecolabel-ui
             stage: frontend
             sourceType: helm
+            chartName: nginx
+            chartVersion: 22.4.3
+          - name: inventory-outbox
+            stage: outbox
+            sourceType: helm
+            chartName: inventory-outbox
             chartName: nginx
             chartVersion: 22.4.3
   template:

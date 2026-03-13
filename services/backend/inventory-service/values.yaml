@@ -1,5 +1,5 @@
-fullnameOverride: orders-api
-replicaCount: 1
+fullnameOverride: inventory-service
+replicaCount: 2
 service:
   type: ClusterIP
 serverBlock: |-
@@ -7,7 +7,7 @@ serverBlock: |-
     listen 0.0.0.0:8080;
     location / {
       default_type text/plain;
-      return 200 "orders-api ready\n";
+      return 200 "inventory-service ready\n";
     }
   }
 resources:

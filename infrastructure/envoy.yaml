@@ -29,125 +29,125 @@ data:
                             - match:
                                 prefix: /api/orders
                               route:
-                                cluster: orders-api
+                                cluster: trades-service
                                 prefix_rewrite: /
                             - match:
                                 prefix: /api/users
                               route:
-                                cluster: users-api
+                                cluster: inventory-service
                                 prefix_rewrite: /
                             - match:
                                 prefix: /api/payments
                               route:
-                                cluster: payments-api
+                                cluster: membership-service
                                 prefix_rewrite: /
                             - match:
                                 prefix: /api/catalog
                               route:
-                                cluster: catalog-api
+                                cluster: ecolabel-service
                                 prefix_rewrite: /
                             - match:
                                 prefix: /admin
                               route:
-                                cluster: admin-ui
+                                cluster: inventory-ui
                                 prefix_rewrite: /
                             - match:
                                 prefix: /support
                               route:
-                                cluster: support-ui
+                                cluster: ecolabel-ui
                                 prefix_rewrite: /
                             - match:
                                 prefix: /
                               route:
-                                cluster: web-ui
+                                cluster: ui
                     http_filters:
                       - name: envoy.filters.http.router
                         typed_config:
                           "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
       clusters:
-        - name: orders-api
+        - name: trades-service
           type: STRICT_DNS
           connect_timeout: 2s
           load_assignment:
-            cluster_name: orders-api
+            cluster_name: trades-service
             endpoints:
               - lb_endpoints:
                   - endpoint:
                       address:
                         socket_address:
-                          address: orders-api.progressive-sync-poc.svc.cluster.local
+                          address: trades-service.progressive-sync-poc.svc.cluster.local
                           port_value: 80
-        - name: users-api
+        - name: inventory-service
           type: STRICT_DNS
           connect_timeout: 2s
           load_assignment:
-            cluster_name: users-api
+            cluster_name: inventory-service
             endpoints:
               - lb_endpoints:
                   - endpoint:
                       address:
                         socket_address:
-                          address: users-api.progressive-sync-poc.svc.cluster.local
+                          address: inventory-service.progressive-sync-poc.svc.cluster.local
                           port_value: 80
-        - name: payments-api
+        - name: membership-service
           type: STRICT_DNS
           connect_timeout: 2s
           load_assignment:
-            cluster_name: payments-api
+            cluster_name: membership-service
             endpoints:
               - lb_endpoints:
                   - endpoint:
                       address:
                         socket_address:
-                          address: payments-api.progressive-sync-poc.svc.cluster.local
+                          address: membership-service.progressive-sync-poc.svc.cluster.local
                           port_value: 80
-        - name: catalog-api
+        - name: ecolabel-service
           type: STRICT_DNS
           connect_timeout: 2s
           load_assignment:
-            cluster_name: catalog-api
+            cluster_name: ecolabel-service
             endpoints:
               - lb_endpoints:
                   - endpoint:
                       address:
                         socket_address:
-                          address: catalog-api.progressive-sync-poc.svc.cluster.local
+                          address: ecolabel-service.progressive-sync-poc.svc.cluster.local
                           port_value: 80
-        - name: web-ui
+        - name: ui
           type: STRICT_DNS
           connect_timeout: 2s
           load_assignment:
-            cluster_name: web-ui
+            cluster_name: ui
             endpoints:
               - lb_endpoints:
                   - endpoint:
                       address:
                         socket_address:
-                          address: web-ui.progressive-sync-poc.svc.cluster.local
+                          address: ui.progressive-sync-poc.svc.cluster.local
                           port_value: 80
-        - name: admin-ui
+        - name: inventory-ui
           type: STRICT_DNS
           connect_timeout: 2s
           load_assignment:
-            cluster_name: admin-ui
+            cluster_name: inventory-ui
             endpoints:
               - lb_endpoints:
                   - endpoint:
                       address:
                         socket_address:
-                          address: admin-ui.progressive-sync-poc.svc.cluster.local
+                          address: inventory-ui.progressive-sync-poc.svc.cluster.local
                           port_value: 80
-        - name: support-ui
+        - name: ecolabel-ui
           type: STRICT_DNS
           connect_timeout: 2s
           load_assignment:
-            cluster_name: support-ui
+            cluster_name: ecolabel-ui
             endpoints:
               - lb_endpoints:
                   - endpoint:
                       address:
                         socket_address:
-                          address: support-ui.progressive-sync-poc.svc.cluster.local
+                          address: ecolabel-ui.progressive-sync-poc.svc.cluster.local
                           port_value: 80
     admin:
       access_log_path: /tmp/admin_access.log

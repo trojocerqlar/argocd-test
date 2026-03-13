@@ -51,20 +51,20 @@ apps/
     shared-secrets.yaml
 services/
   backend/
-    orders-api/
+    trades-service/
       values.yaml
-    users-api/
+    inventory-service/
       values.yaml
-    payments-api/
+    membership-service/
       values.yaml
-    catalog-api/
+    ecolabel-service/
       values.yaml
   frontend/
-    web-ui/
+    ui/
       values.yaml
-    admin-ui/
+    inventory-ui/
       values.yaml
-    support-ui/
+    ecolabel-ui/
       values.yaml
 ```
 
@@ -134,3 +134,16 @@ Backend values files inject credentials from the `backend-service-credentials` S
 - only the services that already follow your Helm deployment model use values files
 
 To scale the demo up, add another values file and one more element to the ApplicationSet list generator.
+
+## Before starting, make sure progressive sync is enabled
+
+`kubectl -n argocd get cm argocd-cmd-params-cm -o yaml`
+
+```bash
+kubectl -n argocd patch configmap argocd-cmd-params-cm \
+  --type merge \
+  -p '{"data":{"applicationsetcontroller.enable.progressive.syncs":"true"}}'
+
+kubectl -n argocd rollout restart deployment/argocd-applicationset-controller
+kubectl -n argocd rollout status deployment/argocd-applicationset-controller
+```
