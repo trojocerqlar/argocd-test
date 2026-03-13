@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: progressive-sync-poc
+  name: pr-abc-appset
   namespace: argocd
 spec:
   goTemplate: true
