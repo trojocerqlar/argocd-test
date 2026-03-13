@@ -1,0 +1,18 @@
+fullnameOverride: web-ui
+replicaCount: 1
+service:
+  type: ClusterIP
+serverBlock: |-
+  server {
+    listen 0.0.0.0:8080;
+    location / {
+      default_type text/plain;
+      return 200 "web-ui ready\n";
+    }
+  }
+resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    memory: 128Mi

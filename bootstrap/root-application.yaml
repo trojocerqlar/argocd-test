@@ -1,22 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: infrastructure
+  name: progressive-sync-poc-bootstrap
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
-
   source:
-    repoURL: https://github.com/trojocerqlar/argocd-test.git
-    targetRevision: main
-    path: infrastructure
-
+    repoURL: https://github.com/YOUR_ORG/argocd-progressive-sync-poc.git
+    targetRevision: HEAD
+    path: bootstrap/core
   destination:
     server: https://kubernetes.default.svc
-    namespace: app
-
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true
