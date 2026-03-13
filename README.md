@@ -87,6 +87,11 @@ data:
 
 in `argocd-cmd-params-cm`.
 
+Deletion note:
+
+- `progressive-sync-poc` sets `preserveResourcesOnDeletion: true`, so deleting the `ApplicationSet` will not cascade-delete the deployed workloads.
+- If you want to remove the bootstrap `Application` without deleting the generated child `Application` resources, delete the `ApplicationSet` with orphan propagation instead of a normal cascading delete.
+
 ## Install
 
 1. Replace `https://github.com/trojocerqlar/argocd-test` in:
