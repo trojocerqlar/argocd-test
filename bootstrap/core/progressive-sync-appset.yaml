@@ -7,8 +7,6 @@ spec:
   goTemplate: true
   goTemplateOptions:
     - missingkey=error
-  syncPolicy:
-    preserveResourcesOnDeletion: true
   strategy:
     type: RollingSync
     deletionOrder: Reverse
