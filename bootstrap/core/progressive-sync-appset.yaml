@@ -92,9 +92,9 @@ spec:
             valuesFile: values/frontends/support-ui.yaml
   template:
     metadata:
-      name: '{{name}}'
+      name: '{{.name}}'
       labels:
-        stage: '{{stage}}'
+        stage: '{{.stage}}'
     spec:
       project: progressive-sync-poc
       destination:
