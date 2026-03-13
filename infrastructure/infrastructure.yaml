@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:16-alpine
+          image: postgres:17-alpine
           env:
             - name: POSTGRES_DB
               value: orders
@@ -96,7 +96,7 @@ spec:
     spec:
       containers:
         - name: mongo
-          image: mongo:7.0
+          image: mongo:8.0
           args:
             - --bind_ip_all
           env:

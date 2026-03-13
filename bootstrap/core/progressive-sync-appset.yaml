@@ -19,7 +19,7 @@ spec:
               operator: In
               values:
                 - gcp
-          maxUpdate: 1
+          maxUpdate: 1 # Only one application with stage gcp will be synced at a time
         - matchExpressions:
             - key: stage
               operator: In
@@ -31,7 +31,7 @@ spec:
               operator: In
               values:
                 - backend
-          maxUpdate: 2
+          maxUpdate: 2 # Two applications with stage backend can be synced at the same time
         - matchExpressions:
             - key: stage
               operator: In
@@ -102,7 +102,7 @@ spec:
       labels:
         stage: '{{.stage}}'
     spec:
-      project: progressive-sync-poc
+      project: default
       destination:
         server: https://kubernetes.default.svc
         namespace: progressive-sync-poc
