@@ -19,31 +19,26 @@ spec:
               operator: In
               values:
                 - gcp
-          maxUpdate: 1 # Only one application with stage gcp will be synced at a time
         - matchExpressions:
             - key: stage
               operator: In
               values:
                 - infrastructure
-          maxUpdate: 1
         - matchExpressions:
             - key: stage
               operator: In
               values:
                 - backend
-          maxUpdate: 2 # Two applications with stage backend can be synced at the same time
         - matchExpressions:
             - key: stage
               operator: In
               values:
                 - frontend
-          maxUpdate: 1
         - matchExpressions:
             - key: stage
               operator: In
               values:
                 - outbox
-          maxUpdate: 1
   generators:
     - list:
         elements:
