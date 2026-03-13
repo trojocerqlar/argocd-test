@@ -75,7 +75,7 @@ in `argocd-cmd-params-cm`.
 
 ## Install
 
-1. Replace `https://github.com/YOUR_ORG/argocd-progressive-sync-poc.git` in:
+1. Replace `https://github.com/trojocerqlar/argocd-test` in:
    - `bootstrap/root-application.yaml`
    - `bootstrap/core/progressive-sync-appset.yaml`
 2. Apply the root Application:

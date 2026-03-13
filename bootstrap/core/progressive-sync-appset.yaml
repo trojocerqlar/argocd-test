@@ -108,7 +108,7 @@ spec:
     {{- if eq .sourceType "directory" }}
     spec:
       source:
-        repoURL: https://github.com/YOUR_ORG/argocd-progressive-sync-poc.git
+        repoURL: https://github.com/trojocerqlar/argocd-test
         targetRevision: HEAD
         path: {{ .path }}
     {{- else if eq .sourceType "helm" }}
@@ -121,7 +121,7 @@ spec:
             releaseName: {{ .name }}
             valueFiles:
               - $values/{{ .valuesFile }}
-        - repoURL: https://github.com/YOUR_ORG/argocd-progressive-sync-poc.git
+        - repoURL: https://github.com/trojocerqlar/argocd-test
           targetRevision: HEAD
           ref: values
     {{- end }}
