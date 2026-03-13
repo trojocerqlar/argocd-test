@@ -42,16 +42,23 @@ bootstrap/
 apps/
   databases-postgres/
   databases-mongo/
-values/
-  backends/
-    orders-api.yaml
-    users-api.yaml
-    payments-api.yaml
-    catalog-api.yaml
-  frontends/
-    web-ui.yaml
-    admin-ui.yaml
-    support-ui.yaml
+services/
+  backend/
+    orders-api/
+      values.yaml
+    users-api/
+      values.yaml
+    payments-api/
+      values.yaml
+    catalog-api/
+      values.yaml
+  frontend/
+    web-ui/
+      values.yaml
+    admin-ui/
+      values.yaml
+    support-ui/
+      values.yaml
 ```
 
 ## Prerequisites
@@ -76,12 +83,12 @@ in `argocd-cmd-params-cm`.
 ## Install
 
 1. Replace `https://github.com/trojocerqlar/argocd-test` in:
-   - `bootstrap/root-application.yaml`
+   - `bootstrap/root-app.yaml`
    - `bootstrap/core/progressive-sync-appset.yaml`
 2. Apply the root Application:
 
 ```bash
-kubectl apply -n argocd -f bootstrap/root-application.yaml
+kubectl apply -n argocd -f bootstrap/root-app.yaml
 ```
 
 3. In Argo CD, sync `progressive-sync-poc-bootstrap`.
@@ -101,7 +108,7 @@ Generated Applications intentionally do not use `spec.syncPolicy.automated`, bec
 Backend and frontend Applications use Argo CD multiple sources:
 
 - source 1: an external Helm chart
-- source 2: this Git repository as a values-only source via `$values/...`
+- source 2: this Git repository as a values-only source via `$services/...`
 
 Database Applications use a normal Git directory source so each app can contain:
 

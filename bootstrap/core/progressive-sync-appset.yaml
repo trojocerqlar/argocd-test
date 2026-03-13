@@ -44,52 +44,38 @@ spec:
           - name: orders-api
             stage: backend
             sourceType: helm
-            chartRepo: https://charts.bitnami.com/bitnami
             chartName: nginx
             chartVersion: 22.4.3
-            valuesFile: values/backends/orders-api.yaml
           - name: users-api
             stage: backend
             sourceType: helm
-            chartRepo: https://charts.bitnami.com/bitnami
             chartName: nginx
             chartVersion: 22.4.3
-            valuesFile: values/backends/users-api.yaml
           - name: payments-api
             stage: backend
             sourceType: helm
-            chartRepo: https://charts.bitnami.com/bitnami
             chartName: nginx
             chartVersion: 22.4.3
-            valuesFile: values/backends/payments-api.yaml
           - name: catalog-api
             stage: backend
             sourceType: helm
-            chartRepo: https://charts.bitnami.com/bitnami
             chartName: nginx
             chartVersion: 22.4.3
-            valuesFile: values/backends/catalog-api.yaml
           - name: web-ui
             stage: frontend
             sourceType: helm
-            chartRepo: https://charts.bitnami.com/bitnami
             chartName: nginx
             chartVersion: 22.4.3
-            valuesFile: values/frontends/web-ui.yaml
           - name: admin-ui
             stage: frontend
             sourceType: helm
-            chartRepo: https://charts.bitnami.com/bitnami
             chartName: nginx
             chartVersion: 22.4.3
-            valuesFile: values/frontends/admin-ui.yaml
           - name: support-ui
             stage: frontend
             sourceType: helm
-            chartRepo: https://charts.bitnami.com/bitnami
             chartName: nginx
             chartVersion: 22.4.3
-            valuesFile: values/frontends/support-ui.yaml
   template:
     metadata:
       name: '{{.name}}'
@@ -114,14 +100,14 @@ spec:
     {{- else if eq .sourceType "helm" }}
     spec:
       sources:
-        - repoURL: {{ .chartRepo }}
+        - repoURL: https://charts.bitnami.com/bitnami
           chart: {{ .chartName }}
           targetRevision: {{ .chartVersion }}
           helm:
             releaseName: {{ .name }}
             valueFiles:
-              - $values/{{ .valuesFile }}
+              - $services/services/{{ .stage }}/{{ .name }}/values.yaml
         - repoURL: https://github.com/trojocerqlar/argocd-test
           targetRevision: HEAD
-          ref: values
+          ref: services
     {{- end }}
