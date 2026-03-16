@@ -95,10 +95,10 @@ spec:
       labels:
         stage: '{{.stage}}'
     spec:
-      project: default
+      project: cerqlar-temp-envs
       destination:
         server: https://kubernetes.default.svc
-        namespace: app
+        namespace: abc
       syncPolicy:
         syncOptions:
           - CreateNamespace=true
