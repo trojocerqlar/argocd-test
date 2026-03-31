@@ -20,7 +20,7 @@ spec:
           command: ["sh", "-c", "echo 'Running migrations...' && sleep 10 && echo 'Migrations done'"]
       containers:
         - name: poc-service
-          image: nginx:1.25-alpine
+          image: nginx:1.26-alpine
           ports:
             - containerPort: 80
           readinessProbe:
