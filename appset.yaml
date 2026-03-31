@@ -35,6 +35,9 @@ spec:
         chart: nginx
         helm:
           releaseName: '{{.service}}'
+          values: |
+            service:
+              type: ClusterIP
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
