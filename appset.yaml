@@ -1,0 +1,58 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: services-appset-dev
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - list:
+        elements:
+          - service: trades-service
+            chartVersion: "22.4.3"
+          - service: inventory-service
+            chartVersion: "22.4.3"
+  template:
+    metadata:
+      name: "poc-{{.service}}"
+    spec:
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: abc
+      project: default
+      revisionHistoryLimit: 4
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+  templatePatch: |
+    spec:
+      source:
+        repoURL: https://charts.bitnami.com/bitnami
+        targetRevision: '{{.chartVersion}}'
+        chart: nginx
+        helm:
+          releaseName: '{{.service}}'
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: poc-risk-dashboards
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: abc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  source:
+    repoURL: https://github.com/trojocerqlar/argocd-test
+    targetRevision: HEAD
+    path: poc

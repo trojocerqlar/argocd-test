@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: poc-service
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: poc-service
+  template:
+    metadata:
+      labels:
+        app: poc-service
+    spec:
+      initContainers:
+        - name: migrate
+          image: busybox
+          command: ["sh", "-c", "echo 'Running migrations...' && sleep 10 && echo 'Migrations done'"]
+      containers:
+        - name: poc-service
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
