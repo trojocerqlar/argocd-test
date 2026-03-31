@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: poc-cubejs
-          image: nginx:alpine
+          image: nginx:1.25-alpine
           ports:
             - containerPort: 80
           readinessProbe:
