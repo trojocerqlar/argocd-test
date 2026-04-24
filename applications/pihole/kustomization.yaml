@@ -6,4 +6,4 @@ helmCharts:
     version: 2.34.0
     repo: "https://mojo2600.github.io/pihole-kubernetes/"
     releaseName: pihole
-    valuesFile: values.yaml
+    # valuesFile: values.yaml
