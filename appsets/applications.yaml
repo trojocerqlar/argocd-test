@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: applications
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - list:
+        elements:
+          - name: pihole
+            namespace: pihole
+  template:
+    metadata:
+      name: '{{.name}}'
+      namespace: argocd
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: applications
+      destination:
+        server: https://kubernetes.default.svc
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+        retry:
+          limit: 3
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+      source:
+        repoURL: https://github.com/tomas-rojo/homelab.git
+        targetRevision: HEAD
+        path: gitops/applications/{{.name}}
+        kustomize:
+          namespace: '{{.namespace}}'
