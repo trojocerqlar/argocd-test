@@ -17,10 +17,9 @@ spec:
       finalizers:
         - resources-finalizer.argocd.argoproj.io
     spec:
-      project: applications
+      project: default
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{.namespace}}'
       syncPolicy:
         automated:
           prune: true
