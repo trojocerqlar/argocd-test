@@ -9,7 +9,6 @@ spec:
     - list:
         elements:
           - name: pihole
-            namespace: pihole
   template:
     metadata:
       name: '{{.name}}'
@@ -36,5 +35,3 @@ spec:
         repoURL: https://github.com/trojocerqlar/argocd-test.git
         targetRevision: HEAD
         path: applications/{{.name}}
-        kustomize:
-          namespace: '{{.namespace}}'
