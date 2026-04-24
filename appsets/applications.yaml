@@ -35,6 +35,6 @@ spec:
       source:
         repoURL: https://github.com/trojocerqlar/argocd-test.git
         targetRevision: HEAD
-        path: appsets/applications/{{.name}}
+        path: applications/{{.name}}
         kustomize:
           namespace: '{{.namespace}}'
