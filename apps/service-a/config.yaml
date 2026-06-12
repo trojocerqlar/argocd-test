@@ -1,2 +1,3 @@
 serverSideApply: true
 chartVersion: "22.4.3"
+url: "https://example.com"
