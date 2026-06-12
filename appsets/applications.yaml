@@ -42,7 +42,7 @@ spec:
           targetRevision: main
           ref: values
       destination:
-        server: '{{ .cluster }}'
+        name: '{{ .cluster }}'
         namespace: cerqlar-{{ .env }}
       syncPolicy:
         automated:
