@@ -1,37 +1,58 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: applications
-  namespace: argocd
+  name: services
 spec:
   goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
   generators:
-    - list:
-        elements:
-          - name: pihole
+    - matrix:
+        generators:
+          - git:
+              repoURL: https://github.com/cerqlar/argocd-test.git
+              revision: main
+              files:
+                - path: apps/*/config.yaml
+          - list:
+              elements:
+                - env: dev
+                  cluster: in-cluster
+                - env: prd
+                  cluster: in-cluster
   template:
     metadata:
-      name: '{{.name}}'
-      namespace: argocd
-      finalizers:
-        - resources-finalizer.argocd.argoproj.io
+      name: '{{ .path.basename }}-{{ .env }}'
+      labels:
+        env: '{{ .env }}'
+        service: '{{ .path.basename }}'
     spec:
-      project: default
+      project: services
+      sources:
+        - repoURL:  https://charts.bitnami.com/bitnami
+          chart: nginx
+          targetRevision: '{{ .chartVersion }}'
+          helm:
+            releaseName: '{{ .path.basename }}'
+            valueFiles:
+              - $values/apps/{{ .path.basename }}/values.yaml
+              - $values/apps/{{ .path.basename }}/values.{{ .env }}.yaml
+              - $values/apps/{{ .path.basename }}/secrets.{{ .env }}.yaml
+            ignoreMissingValueFiles: true
+        - repoURL: https://github.com/cerqlar/argocd-test.git
+          targetRevision: main
+          ref: values
       destination:
-        server: https://kubernetes.default.svc
+        server: '{{ .cluster }}'
+        namespace: cerqlar-{{ .env }}
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
+  templatePatch: |
+    spec:
+      syncPolicy:
         syncOptions:
           - CreateNamespace=true
-        retry:
-          limit: 3
-          backoff:
-            duration: 5s
-            factor: 2
-            maxDuration: 3m
-      source:
-        repoURL: https://github.com/trojocerqlar/argocd-test.git
-        targetRevision: HEAD
-        path: applications/{{.name}}
+          {{- if .serverSideApply }}
+          - ServerSideApply=true
+          {{- end }}
