@@ -9,7 +9,7 @@ spec:
     - matrix:
         generators:
           - git:
-              repoURL: https://github.com/cerqlar/argocd-test.git
+              repoURL: https://github.com/trojocerqlar/argocd-test.git
               revision: main
               files:
                 - path: apps/*/config.yaml
@@ -38,7 +38,7 @@ spec:
               - $values/apps/{{ .path.basename }}/values.{{ .env }}.yaml
               - $values/apps/{{ .path.basename }}/secrets.{{ .env }}.yaml
             ignoreMissingValueFiles: true
-        - repoURL: https://github.com/cerqlar/argocd-test.git
+        - repoURL: https://github.com/trojocerqlar/argocd-test.git
           targetRevision: main
           ref: values
       destination:
