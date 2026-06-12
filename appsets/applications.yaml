@@ -52,11 +52,11 @@ spec:
       syncPolicy:
         syncOptions:
           - CreateNamespace=true
-          {{- if .serverSideApply }}
+          {{- if dig "serverSideApply" false . }}
           - ServerSideApply=true
           {{- end }}
     metadata:
       annotations:
-        {{- if .url }}
-        link.argocd.argoproj.io/external-link: "{{.url}}"
+        {{- if dig "url" "" . }}
+        link.argocd.argoproj.io/external-link: "{{ dig "url" "" . }}"
         {{- end }}
