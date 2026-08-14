@@ -12,19 +12,15 @@ spec:
               repoURL: https://github.com/trojocerqlar/argocd-test.git
               revision: main
               files:
-                - path: apps/*/config.yaml
+                - path: appssets/envs/*.yaml
           - list:
-              elements:
-                - env: dev
-                  cluster: in-cluster
-                - env: prd
-                  cluster: in-cluster
+              elementsYaml: "{{ .services | toJson }}"
   template:
     metadata:
-      name: '{{ .path.basename }}-{{ .env }}'
+      name: '{{ .env }}-{{ .service }}'
       labels:
         env: '{{ .env }}'
-        service: '{{ .path.basename }}'
+        service: '{{ .service }}'
     spec:
       project: services
       sources:
@@ -45,18 +41,11 @@ spec:
         namespace: cerqlar-{{ .env }}
       syncPolicy:
         automated:
-          prune: true
-          selfHeal: true
+          prune: "{{ .prune }}"
+          selfHeal: "{{ .selfHeal }}"
   templatePatch: |
-    spec:
-      syncPolicy:
-        syncOptions:
-          - CreateNamespace=true
-          {{- if dig "serverSideApply" false . }}
-          - ServerSideApply=true
-          {{- end }}
     metadata:
       annotations:
-        {{- if dig "url" "" . }}
-        link.argocd.argoproj.io/external-link: "{{ dig "url" "" . }}"
+        {{- if hasKey . "url" }}
+        link.argocd.argoproj.io/external-link: "{{ .url }}"
         {{- end }}

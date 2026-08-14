@@ -1,3 +1,0 @@
-# Not adding serverSideApply to this app to test that it is not applied by default
-# serverSideApply: false 
-chartVersion: "25.0.5"
