@@ -1,0 +1,19 @@
+appsets/applications.yaml
+  s_5ee3e49b079473::t_ef1fe3a954d257 53-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "46139b38b9bf8a31c233c55b10e0c71088d86d45",
+  "prompts": {},
+  "sessions": {
+    "s_5ee3e49b079473": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ae6c7e66-fb0a-4567-914a-dc364221717a",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Tomas Rojo <trojo@cerqlar.com>"
+    }
+  }
+}
