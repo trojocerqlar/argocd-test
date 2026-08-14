@@ -28,24 +28,25 @@ spec:
           chart: nginx
           targetRevision: '{{ .chartVersion }}'
           helm:
-            releaseName: '{{ .path.basename }}'
+            releaseName: '{{ .service }}'
             valueFiles:
-              - $values/apps/{{ .path.basename }}/values.{{ .env }}.yaml
-              - $values/apps/{{ .path.basename }}/secrets.{{ .env }}.yaml
+              - $values/apps/{{ .service }}/values.{{ .env }}.yaml
+              - $values/apps/{{ .service }}/secrets.{{ .env }}.yaml
             ignoreMissingValueFiles: true
         - repoURL: https://github.com/trojocerqlar/argocd-test.git
           targetRevision: main
           ref: values
       destination:
-        name: '{{ .cluster }}'
+        name: 'in-cluster'
         namespace: cerqlar-{{ .env }}
-      syncPolicy:
-        automated:
-          prune: "{{ .prune }}"
-          selfHeal: "{{ .selfHeal }}"
   templatePatch: |
+    {{- if hasKey . "url" }}
     metadata:
       annotations:
-        {{- if hasKey . "url" }}
         link.argocd.argoproj.io/external-link: "{{ .url }}"
-        {{- end }}
+    {{- end }}
+    spec:
+      syncPolicy:
+        automated:
+          prune: {{ .prune }}
+          selfHeal: {{ .selfHeal }}
