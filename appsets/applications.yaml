@@ -22,7 +22,7 @@ spec:
         env: '{{ .env }}'
         service: '{{ .service }}'
     spec:
-      project: services
+      project: default
       sources:
         - repoURL:  https://charts.bitnami.com/bitnami
           chart: nginx
