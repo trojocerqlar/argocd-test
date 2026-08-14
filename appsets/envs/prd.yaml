@@ -1,7 +1,7 @@
 env: prd
 slackKey: prod        # captures the dev/demo/prod naming inconsistency in one field
-prune: "true"
-selfHeal: "true"      # set "false" here to give production a guardrail
+prune: true
+selfHeal: true      # set "false" here to give production a guardrail
 services:
   - service: service-a
     chartVersion: "25.0.5"
