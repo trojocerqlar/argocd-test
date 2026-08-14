@@ -12,7 +12,7 @@ spec:
               repoURL: https://github.com/trojocerqlar/argocd-test.git
               revision: main
               files:
-                - path: appssets/envs/*.yaml
+                - path: appsets/envs/*.yaml
           - list:
               elementsYaml: "{{ .services | toJson }}"
   template:
