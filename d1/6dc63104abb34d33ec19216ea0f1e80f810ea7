@@ -1,0 +1,15 @@
+appsets/applications.yaml
+  h_6dfa01ea729522 53-54
+  h_6dfa01ea729522 52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "d16dc63104abb34d33ec19216ea0f1e80f810ea7",
+  "prompts": {},
+  "humans": {
+    "h_6dfa01ea729522": {
+      "author": "Tomas Rojo <trojo@cerqlar.com>"
+    }
+  }
+}
