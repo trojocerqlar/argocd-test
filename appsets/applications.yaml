@@ -50,5 +50,5 @@ spec:
         automated:
           prune: {{ .prune }}
           selfHeal: {{ .selfHeal }}
-      syncOptions:
-        - CreateNamespace=true
+        syncOptions:
+          - CreateNamespace=true
